@@ -1,0 +1,69 @@
+FROM ubuntu:trusty
+
+ARG http_proxy
+ARG https_proxy
+
+ENV PATH "/usr/local/heroku/bin:/usr/local/rvm/bin:$PATH"
+
+RUN set -x -v && \
+    [ ! -z "$http_proxy" ] && export http_proxy=$http_proxy && \
+    [ ! -z "$https_proxy" ] && export https_proxy=$https_proxy && \
+    apt-get update -y && \
+    apt-get -y install curl gnupg2 git
+
+#
+# install rby
+#
+
+ENV RUBY_VERSION 2.2.3
+RUN set -x -v && \
+    [ ! -z "$http_proxy" ] && export http_proxy=$http_proxy && \
+    [ ! -z "$https_proxy" ] && export https_proxy=$https_proxy && \
+    curl -sSL https://rvm.io/mpapis.asc | gpg2 --import - && \
+    sudo -i apt-get update -y && \
+    curl -L https://get.rvm.io | bash -s stable && \
+    . /etc/profile.d/rvm.sh && \
+    rvm install $RUBY_VERSION
+
+RUN bash --login -c '. /etc/profile.d/rvm.sh && \
+    rvm use $RUBY_VERSION --default && \
+    ruby --version && \
+    gem --version && \
+    gem install bundler && \
+    echo "ruby is installed."'
+
+#
+# install heroku cli
+# extracted from https://toolbelt.heroku.com/install.sh
+#
+RUN curl https://s3.amazonaws.com/assets.heroku.com/heroku-client/heroku-client.tgz > /tmp/heroku-client.tgz && \
+    mkdir -p /usr/local/heroku && \
+    cd /usr/local/heroku && \
+    tar -xzvf /tmp/heroku-client.tgz && \
+    mv heroku-client/* . && \
+    rmdir heroku-client/ && \
+    rm -f /tmp/heroku-client.tgz
+
+ADD profile.sh /home/heroku/.profile
+ADD alias.sh /opt/alias.sh
+ADD entrypoint.sh /opt/entrypoint.sh
+
+RUN adduser --disabled-login --gecos 'Generic unprivileged user' heroku && \
+    echo 'gem: --no-ri --no-rdoc' > /home/heroku/.gemrc && \
+    chmod +x /home/heroku/.profile && \
+    chmod +x /opt/alias.sh && \
+    chown -R heroku:heroku /home/heroku;
+
+USER heroku
+
+#
+# setup heroku cli
+#
+RUN bash --login -c ' \
+    heroku --version; \
+    '
+
+WORKDIR /home/heroku
+ENTRYPOINT ["/bin/bash", "/opt/entrypoint.sh"]
+CMD ["shell"]
+
