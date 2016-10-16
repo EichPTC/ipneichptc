@@ -6,10 +6,10 @@ ARG https_proxy
 ENV PATH "/usr/local/heroku/bin:/usr/local/rvm/bin:$PATH"
 
 RUN set -x -v && \
-    [ ! -z "$http_proxy" ] && export http_proxy=$http_proxy && \
-    [ ! -z "$https_proxy" ] && export https_proxy=$https_proxy && \
+    [ ! -z "$http_proxy" ] && export http_proxy=$http_proxy; \
+    [ ! -z "$https_proxy" ] && export https_proxy=$https_proxy; \
     apt-get update -y && \
-    apt-get -y install curl gnupg2 git
+    apt-get -y install jq curl gnupg2 git
 
 #
 # install rby
@@ -17,8 +17,8 @@ RUN set -x -v && \
 
 ENV RUBY_VERSION 2.2.3
 RUN set -x -v && \
-    [ ! -z "$http_proxy" ] && export http_proxy=$http_proxy && \
-    [ ! -z "$https_proxy" ] && export https_proxy=$https_proxy && \
+    [ ! -z "$http_proxy" ] && export http_proxy=$http_proxy; \
+    [ ! -z "$https_proxy" ] && export https_proxy=$https_proxy; \
     curl -sSL https://rvm.io/mpapis.asc | gpg2 --import - && \
     sudo -i apt-get update -y && \
     curl -L https://get.rvm.io | bash -s stable && \
