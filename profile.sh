@@ -10,6 +10,8 @@ function do_usage()
     echo
     echo "run   - (default) run some heroku cli command"
     echo "shell - starts a command prompt where you can run heroku"
+    echo "alias - a bash shell alias to make it easier to use this container"
+    echo "image - print this image name"
     echo "-h|--help|help - prints this help"
 }
 
@@ -95,14 +97,15 @@ for opt in $ENTRYPOINT_CMD; do
         -h|--help|help)
             do_usage
             exit 3;;
+        image)
+            echo $HEROKU_IMAGE
+            exit 0;;
         shell)
             do_shell;;
         alias)
             do_alias
             exit 0;;
         run)
-            FOO=$(f_shift $FOO)
-            shift
             do_run $(f_shift $ENTRYPOINT_CMD)
             exit $?;;
         *)

@@ -8,7 +8,8 @@ function f_docker_volumefrom() { \\
     fi; \\
 }; \\
 function f_heroku_clean() { \\
-    docker rm -v -f \${1}; \\
+    docker rm -f \${1}; \\
+    docker volume rm \${1}-vol; \\
 }; \\
 function f_heroku() { \\
     _v_name="heroku-\$(whoami)-\$(hostname)"; \\
@@ -20,7 +21,7 @@ function f_heroku() { \\
     fi; \\
     f_docker_volumefrom "\${_v_name}" "1000" "/data"; \\
     heroku_proxy_args="\${heroku_https_args} \${heroku_http_args}"; \\
-    eval "docker run -it --volumes-from "\${_v_name}" --rm \${heroku_proxy_args} heroku \\\$@"; \\
+    eval "docker run -it --volumes-from "\${_v_name}" --rm \${heroku_proxy_args} ${HEROKU_IMAGE} \\\$@"; \\
 }; \\
 alias heroku='f_heroku';
 ALIAS

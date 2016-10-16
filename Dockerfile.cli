@@ -2,7 +2,9 @@ FROM ubuntu:trusty
 
 ARG http_proxy
 ARG https_proxy
+ARG BUILD_HEROKU_IMAGE
 
+ENV HEROKU_IMAGE $BUILD_HEROKU_IMAGE
 ENV PATH "/usr/local/heroku/bin:/usr/local/rvm/bin:$PATH"
 
 RUN set -x -v && \
